@@ -1,32 +1,62 @@
-<script src="/socket.io/socket.io.js"></script>
+<!DOCTYPE:html>
+<html lang="en_CA">
+<head>
+  <title>Socket Test with JIVE</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 
-<!--<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>-->
+  <script>
 
-<script>
+  $(document).ready(function () {
+    var socket = io.connect('http://localhost:3000');
+    var text = $("#text");
+    var users = $("#users");
 
-// $(document).ready(function () {
-  var socket = io.connect('http://localhost:3000');
-//  var text = $("#text");
+    socket.on("connect", function () {
+      text.html('connected');
+      // var username = $("#usr").val();
+      var username = prompt("Enter your username");
+      console.log('connected' + username);
+      text.html('connected' + username);
+      socket.emit('adduser', username);
+    });
 
-  socket.on("connect", function () {
-    // text.html('connected');
-    console.log('connected');
+    socket.on('updatechat', function (username, data) {
+      text.append('<b>' + username + ':<b> ' + data  + '<br />');
+    });
+
+    socket.on('updateusers', function (data) {
+      $("#users").empty();
+      $.each(data, function (key, value) {
+        users.append('<div>' + value + '<\/div>');
+      });
+    });
+
+    // page events
+    $("#sendmsg").click(function () {
+      var msg = $("#msg").val();
+      $("#msg").val('');
+      console.log("Prepping '" + msg + "' for sending.");
+      socket.emit('sendchat', msg);
+    });
+
+    socket.on("disconnect", function () {
+      text.html('disconnected');
+      console.log('disconnected');
+    });
   });
 
-  socket.on("message", function (msg) {
-    // text.html(msg);
-    console.log(msg);
-  });
-
-  socket.on("disconnect", function () {
-    // text.html('disconnected');
-    console.log('disconnected');
-  });
-  // var socket = io.connect('http://localhost');
-  // socket.on('news', function (data) {
-  //   console.log(data);
-  //   socket.emit('Another event', { my: 'data' });
-  // });
-// });
-
-</script>
+  </script>
+</head>
+<body>
+  <h2>users</h2>
+  <div id="users">
+  <h2>chat</h2>
+  </div>
+  <div id="text">
+  </div>
+  <input type="text" placeholder="username" id="usr" />
+  <input type="text" placeholder="for sending…" id="msg" />
+  <input type="button" value="send" id="sendmsg" />
+</body>
+</html>

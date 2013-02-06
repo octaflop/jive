@@ -34,18 +34,34 @@ app.get("/", function (req, res) {
   res.sendfile(__dirname + "/index.html");
 });
 
+var usernames = {};
+
 io.sockets.on('connection', function (client) {
 
-  setTimeout(function () {
-    client.send("Waited 3 sec");
-  }, 3000);
-
-  client.on('message', function () {
-
+  client.on('sendchat', function (msg) {
+    console.log(msg);
+    io.sockets.emit('updatechat', client.username, msg);
   });
 
-  client.on('disconnect', function () {
+  client.on('adduser', function (username) {
+    client.username = username;
+    usernames[username] = username;
 
+    client.emit('updatechat', 'SERVER', "you've connected");
+    client.broadcast.emit('updatechat', 'SERVER', username + "has connected!");
+
+    io.sockets.emit('updateusers', usernames);
+  });
+
+  // setTimeout(function () {
+  //   client.send("Waited 3 sec");
+  // }, 3000);
+
+
+  client.on('disconnect', function () {
+    delete usernames[client.username];
+    io.sockets.emit('updateusers', usernames);
+    client.broadcast.emit('updatechat', 'SERVER', client.username + ' has disconnected');
   });
 
   // socket.on('private message', function (from, msg) {

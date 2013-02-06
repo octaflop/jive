@@ -1,0 +1,32 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<!--<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>-->
+
+<script>
+
+// $(document).ready(function () {
+  var socket = io.connect('http://localhost:3000');
+//  var text = $("#text");
+
+  socket.on("connect", function () {
+    // text.html('connected');
+    console.log('connected');
+  });
+
+  socket.on("message", function (msg) {
+    // text.html(msg);
+    console.log(msg);
+  });
+
+  socket.on("disconnect", function () {
+    // text.html('disconnected');
+    console.log('disconnected');
+  });
+  // var socket = io.connect('http://localhost');
+  // socket.on('news', function (data) {
+  //   console.log(data);
+  //   socket.emit('Another event', { my: 'data' });
+  // });
+// });
+
+</script>
